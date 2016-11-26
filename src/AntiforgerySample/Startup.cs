@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using AntiforgerySample.Filters;
+using AntiforgerySample.Services;
 
 namespace AntiforgerySample
 {
@@ -27,8 +29,21 @@ namespace AntiforgerySample
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            // Setup options with DI
+            services.AddOptions();
+            services.Configure<ValidateOriginOptions>(Configuration);
+
             // Add framework services.
-            services.AddMvc();
+            services.AddAntiforgery(opts => opts.HeaderName = "X-XSRF-Token");
+            services.AddMvc(opts =>
+            {
+                opts.Filters.AddService(typeof(AngularAntiforgeryCookieResultFilter));
+                opts.Filters.AddService(typeof(ValidateOriginAuthorizationFilter));
+            });
+
+            services.AddTransient<AngularAntiforgeryCookieResultFilter>();
+            services.AddTransient<ValidateOriginAuthorizationFilter>();
+            services.AddSingleton<ITodoService, TodoService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -12,9 +12,17 @@
     </ul>
     <form>
         <input class="add-input" placeholder="I need to..." type="text" ng-model="formTodoTitle" ng-model-instant />
-        <button class="add-btn" ng-click="addTodo()"><h2>Add</h2></button>
-        <button class="add-btn" ng-click="addTodoWithjQuery()"><h2>Add with jQuery</h2></button>
+        <button class="btn" ng-click="addTodo()">Add</button>
+        <button class="btn" ng-click="addTodoWithjQuery()">Add with jQuery</button>
     </form>
 
-    <button class="clear-btn" ng-click="clearCompleted()">Clear completed</button>
+    <button class="btn" ng-click="clearCompleted()">Clear completed</button>
+</div>
+
+<div>
+    <h2>Try adding one more thing with a full POST</h2>
+    <form asp-controller="Home" asp-action="CreateTodo">
+        <input id="title" name="title" placeholder="I need to..." type="text" />
+        <button type="submit" class="btn">Submit</button>
+    </form>
 </div>

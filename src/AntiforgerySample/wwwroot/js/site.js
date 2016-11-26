@@ -42,15 +42,19 @@ app.controller('todoController', ['$scope', 'todoService', function ($scope, tod
     };
 
     $scope.clearCompleted = function () {
-        $scope.todos
+        var promises = $scope.todos
             .filter(function (todo) { return todo.done; })
-            .forEach(function (todo) {
-                todoService.updateTodo(todo);
+            .map(function (todo) {
+                return todoService.updateTodo(todo);
             });
-
-        $scope.todos = $scope.todos.filter(function (todo) {
-            return !todo.done;
-        });
+        
+        Promise.all(promises).then(function () {
+            $scope.$apply(function () {
+                $scope.todos = $scope.todos.filter(function (todo) {
+                    return !todo.done;
+                });
+            });
+        });        
     };
 
     $scope.addTodoWithjQuery = function () {
@@ -71,3 +75,21 @@ app.controller('todoController', ['$scope', 'todoService', function ($scope, tod
     };
 
 }]);
+
+
+// Setup jQuery ajax for sending the XSRF token cookie as a header on every request
+function readCookie(name) {
+    name += '=';
+    for (var ca = document.cookie.split(/;\s*/), i = ca.length - 1; i >= 0; i--)
+        if (!ca[i].indexOf(name))
+            return ca[i].replace(name, '');
+}
+
+$(function () {
+    var token = readCookie('XSRF-TOKEN');
+    if (!token) return;
+
+    $.ajaxSetup({
+        headers: { 'X-XSRF-TOKEN': token }
+    });
+});
