@@ -30,7 +30,10 @@ namespace AntiforgerySample.Filters
                 context.Result = new BadRequestResult();
             }
 
-            // Validate the origin is in the whitelist (This could be more complex and carefully allow subdomains)
+            // Validate the origin is in the whitelist
+            //  This could be more complex and carefully allow subdomains
+            //  You might also be behind a proxy or configure it might be painful
+            //  so you could consider using the Host and X-Forwarded-Host headers instead of the whitelisted configuration
             if (!options.Value.WhitelistedOrigins.Contains(origin.Host))
             {
                 context.Result = new BadRequestResult();
