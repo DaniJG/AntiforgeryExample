@@ -3,26 +3,34 @@
 }
 
 <div class="todo-wrapper" ng-controller="todoController">
-    <h2>You've got <span class="emphasis">{{getTotalTodos()}}</span> things to do</h2>
-    <ul>
-        <li ng-repeat="todo in todos">
-            <input type="checkbox" ng-model="todo.done" />
-            <span class="done-{{todo.done}}">{{todo.title}}</span>
-        </li>
-    </ul>
-    <form>
-        <input class="add-input" placeholder="I need to..." type="text" ng-model="formTodoTitle" ng-model-instant />
-        <button class="btn" ng-click="addTodo()">Add</button>
-        <button class="btn" ng-click="addTodoWithjQuery()">Add with jQuery</button>
-    </form>
+    <div class="row">
+        <div class="col-md-6 col-xs-12">
+            <h3>You've got <span class="emphasis">{{getTotalTodos()}}</span> things to do</h3>
+            <ul class="list-group">
+                <li class="list-group-item" ng-repeat="todo in todos">
+                    <input type="checkbox" ng-model="todo.done" />
+                    <span class="done-{{todo.done}}">{{todo.title}}</span>
+                </li>
+            </ul>
+        </div>
+    </div>
 
-    <button class="btn" ng-click="clearCompleted()">Clear completed</button>
+    <div class="row">
+        <div class="col-md-6 col-xs-12">
+            <form class="form-inline">
+                <input class="form-control" placeholder="I need to..." type="text" ng-model="formTodoTitle" ng-model-instant />
+                <button class="btn btn-primary" ng-click="addTodo()">Add-Angular</button>
+                <button class="btn btn-default" ng-click="addTodoWithjQuery()">Add-jQuery</button>
+                <button class="btn btn-default" ng-click="clearCompleted()">Clear completed</button>
+            </form>
+        </div>
+    </div>
 </div>
 
 <div>
-    <h2>Try adding one more thing with a full POST</h2>
-    <form asp-controller="Home" asp-action="CreateTodo">
-        <input id="title" name="title" placeholder="I need to..." type="text" />
-        <button type="submit" class="btn">Submit</button>
+    <h3>Try adding one more thing with a full POST</h3>
+    <form class="form-inline" asp-controller="Home" asp-action="CreateTodo">
+        <input class="form-control" id="title" name="title" placeholder="I need to..." type="text" />
+        <button type="submit" class="btn btn-primary">Submit</button>
     </form>
 </div>
