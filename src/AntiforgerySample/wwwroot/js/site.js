@@ -58,6 +58,7 @@ app.controller('todoController', ['$scope', 'todoService', function ($scope, tod
     };
 
     $scope.addTodoWithjQuery = function () {
+        var token = readCookie('XSRF-TOKEN');
         var onSuccess = function (data) {
             $scope.$apply(function () {
                 $scope.todos.push(data);
@@ -70,26 +71,16 @@ app.controller('todoController', ['$scope', 'todoService', function ($scope, tod
             method: 'PUT',
             data: JSON.stringify({ title: $scope.formTodoTitle, done: false }),
             contentType: 'application/json',
+            headers: { 'X-XSRF-TOKEN': token },
             success: onSuccess
         });
     };
 
+    function readCookie(name) {
+        name += '=';
+        for (var ca = document.cookie.split(/;\s*/), i = ca.length - 1; i >= 0; i--)
+            if (!ca[i].indexOf(name))
+                return ca[i].replace(name, '');
+    }
+
 }]);
-
-
-// Setup jQuery ajax for sending the XSRF token cookie as a header on every request
-function readCookie(name) {
-    name += '=';
-    for (var ca = document.cookie.split(/;\s*/), i = ca.length - 1; i >= 0; i--)
-        if (!ca[i].indexOf(name))
-            return ca[i].replace(name, '');
-}
-
-$(function () {
-    var token = readCookie('XSRF-TOKEN');
-    if (!token) return;
-
-    $.ajaxSetup({
-        headers: { 'X-XSRF-TOKEN': token }
-    });
-});
