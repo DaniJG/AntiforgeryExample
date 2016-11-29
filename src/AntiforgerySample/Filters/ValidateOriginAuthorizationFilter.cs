@@ -23,18 +23,22 @@ namespace AntiforgerySample.Filters
             // Validate only "unsafe" methods
             if (!ShouldValidate(context.HttpContext)) return;
 
-            // Make sure we can get the origin
-            var origin = GetOriginFromHeaders(context.HttpContext);
-            if (origin == null)
+            // Make sure we can get the request origin
+            var requestOriginUrl = GetRequestOriginFromHeaders(context.HttpContext);
+            if (requestOriginUrl == null)
             {
                 context.Result = new BadRequestResult();
             }
 
-            // Validate the origin is in the whitelist
-            //  This could be more complex and carefully allow subdomains
-            //  You might also be behind a proxy or configure it might be painful
-            //  so you could consider using the Host and X-Forwarded-Host headers instead of the whitelisted configuration
-            if (!options.Value.WhitelistedOrigins.Contains(origin.Host))
+            // If it is any of the whitelisted origins, allow it (This could be more complex and allow for subdomains)
+            if (options.Value.WhitelistedOrigins.Contains(requestOriginUrl.Host))
+            {
+                return;
+            }
+
+            // Otherwise, get the target origin and make sure they match
+            var targetOriginHost = GetTargetOriginFromHeaders(context.HttpContext);
+            if (!targetOriginHost.Equals(requestOriginUrl.Host, StringComparison.CurrentCultureIgnoreCase))
             {
                 context.Result = new BadRequestResult();
             }
@@ -53,18 +57,36 @@ namespace AntiforgerySample.Filters
             return true;
         }
 
-        private Uri GetOriginFromHeaders(HttpContext httpContext)
+        private Uri GetRequestOriginFromHeaders(HttpContext httpContext)
         {
             // Try with the Origin header
-            var origin = httpContext.Request.Headers["Origin"];
-            if (String.IsNullOrWhiteSpace(origin))
-            {
-                // If not found, then try with Referer
-                origin = httpContext.Request.Headers["Referer"];
+            var requestOrigin = httpContext.Request.Headers["Origin"];
+
+            // If not found, then try with Referer
+            if (String.IsNullOrWhiteSpace(requestOrigin))
+            {                
+                requestOrigin = httpContext.Request.Headers["Referer"];
             }
 
-            if (String.IsNullOrEmpty(origin)) return null;
-            return new Uri(origin);
+            if (String.IsNullOrEmpty(requestOrigin)) return null;
+            return new Uri(requestOrigin);
+        }
+
+        private string GetTargetOriginFromHeaders(HttpContext httpContext)
+        {
+            // Try with the Host header
+            var targetOrigin = httpContext.Request.Headers["Host"];
+
+            // If not found, then try with X-Forwarded-Host
+            if (String.IsNullOrWhiteSpace(targetOrigin))
+            {                
+                targetOrigin = httpContext.Request.Headers["X-Forwarded-Host"];
+            }
+
+            // If still not found, will use the request url
+            return String.IsNullOrEmpty(targetOrigin) ?
+                httpContext.Request.Host.Host :
+                new HostString(targetOrigin).Host;
         }
     }
 }
