@@ -72,6 +72,8 @@ app.controller('todoController', ['$scope', 'todoService', function ($scope, tod
             data: JSON.stringify({ title: $scope.formTodoTitle, done: false }),
             contentType: 'application/json',
             headers: { 'X-XSRF-TOKEN': token },
+            //alternatively, if token rendered to some variable instead a cookie:
+            //headers: { 'X-XSRF-TOKEN': app.antiforgeryToken },
             success: onSuccess
         });
     };

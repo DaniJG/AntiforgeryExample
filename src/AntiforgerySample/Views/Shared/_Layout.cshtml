@@ -68,5 +68,14 @@
     </environment>
 
     @RenderSection("scripts", required: false)
+
+    @*Alternative way of adding the token to the client JS context
+    @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery antiforgery;
+    @{ 
+        var antiforgeryRequestToken = antiforgery.GetAndStoreTokens(Context).RequestToken;
+    }
+    <script>
+        app.antiforgeryToken = @Json.Serialize(antiforgeryRequestToken);
+    </script>*@
 </body>
 </html>
